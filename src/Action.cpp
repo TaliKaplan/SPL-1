@@ -167,7 +167,6 @@ void AddOrder::act(WareHouse &wareHouse){
         wareHouse.getCustomer(customerId).addOrder(orderId);
         wareHouse.addOrder(&newOrder);
     }
-
     wareHouse.addAction(this);
 }
 

@@ -349,52 +349,62 @@ void WareHouse::start() {
         }
 
         if (split[0] == "step") {
-            // relevant action
+            SimulateStep step = SimulateStep(stoi(split[1]));//sends number of steps
+            step.act(*this);
             continue;
         }
 
         if (split[0] == "order") {
-            // relevant action
+            AddOrder order = AddOrder(stoi(split[1]));//sends customer id
+            order.act(*this);
             continue;
         }
 
         if (split[0] == "customer") {
-            // relevant action
+            AddCustomer cust = AddCustomer(split[1], split[2], stoi(split[3]), stoi(split[4]));//(name, type, distance, max orders)
+            cust.act(*this);
             continue;
         }
 
         if (split[0] == "orderStatus") {
-            // relevant action
+            PrintOrderStatus orderStat = PrintOrderStatus(stoi(split[1]));//(order id)
+            orderStat.act(*this);
             continue;
         }
 
         if (split[0] == "customerStatus") {
-            // relevant action
+            PrintCustomerStatus custStat = PrintCustomerStatus(stoi(split[1]));//(customer id)
+            custStat.act(*this);
             continue;
         }
 
         if (split[0] == "volunteerStatus") {
-            // relevant action
+            PrintVolunteerStatus volStat = PrintVolunteerStatus(stoi(split[1]));//()
+            volStat.act(*this);
             continue;
         }
 
         if (split[0] == "log") {
-            // relevant action
+            PrintActionsLog actLog = PrintActionsLog();
+            actLog.act(*this);
             continue;
         }
 
         if (split[0] == "close") {
-            // relevant action
+            Close close = Close();
+            close.act(*this);
             continue;
         }
 
         if (split[0] == "backup") {
-            // relevant action
+            BackupWareHouse back = BackupWareHouse();
+            back.act(*this);
             continue;
         }
 
         if (split[0] == "restore") {
-            // relevant action
+            RestoreWareHouse restore = RestoreWareHouse();
+            restore.act(*this);
             continue;
         }
 
