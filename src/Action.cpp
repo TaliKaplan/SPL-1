@@ -1,10 +1,11 @@
 #include "../include/Action.h"
-#include "main.cpp"
+//#include "main.cpp"
 #include <iostream>
 #include <vector>
 #include <string>
 using namespace std;
 
+extern WareHouse* backup;
 //-----------abstract base class BaseAction------------------
 
 BaseAction::BaseAction() :errorMsg(""), status(ActionStatus::COMPLETED) {}
@@ -254,16 +255,16 @@ PrintCustomerStatus::PrintCustomerStatus(int _customerId): customerId(_customerI
 void PrintCustomerStatus::act(WareHouse &wareHouse){
     if(!wareHouse.customerExists(customerId)){ //check if customer exists
         error("Customer doesn't exist");
-        std::cout << "Error: {}", getErrorMsg();
+        std::cout << "Error: " + getErrorMsg() << endl;
     }
     else{ //customer does exist
-        std::cout << "CustomerID: {}\n", customerId;
+        std::cout << "CustomerID: " + to_string(customerId) << endl;
     
         vector<int> orderIds = wareHouse.getCustomer(customerId).getOrdersIds();
         
         for(int id:orderIds){
-            std::cout << "OrderID: {}\n", id;
-            std::cout << "OrderStatus: {}\n", wareHouse.getOrder(id).StatusToString();
+            std::cout << "OrderID: " + to_string(id) << endl ;
+            std::cout << "OrderStatus: " + wareHouse.getOrder(id).StatusToString() << endl;
         }
     }
 
@@ -275,9 +276,7 @@ PrintCustomerStatus * PrintCustomerStatus::clone() const {
 }
     
 string PrintCustomerStatus::toString() const{
-    string res = "customerStatus ";
-    res += "{} ", customerId;
-    res += "{}", ActionStatusToString(getStatus());
+    string res = "customerStatus " + to_string(customerId) + " " + ActionStatusToString(getStatus());
     return res;
 }
 
@@ -289,9 +288,9 @@ PrintVolunteerStatus::PrintVolunteerStatus(int id): VolunteerId(id){}
 void PrintVolunteerStatus::act(WareHouse &wareHouse){
     if(!wareHouse.volunteerExists(VolunteerId)){ //check if volunteer exists
         error("Volunteer doesn't exist");
-        std::cout << "Error: {}", getErrorMsg();
+        std::cout << "Error: " << getErrorMsg()<< std::endl;
     }
-    else wareHouse.getVolunteer(VolunteerId).toString(); //customer does exist
+    else std::cout <<wareHouse.getVolunteer(VolunteerId).toString() << std::endl; //customer does exist
 
     wareHouse.addAction(this);
 }
@@ -301,9 +300,7 @@ PrintVolunteerStatus * PrintVolunteerStatus::clone() const{
 }
 
 string PrintVolunteerStatus::toString() const {
-    string res = "volunteerStatus ";
-    res += "{} ", VolunteerId;
-    res += "{}", ActionStatusToString(getStatus());
+    string res = "volunteerStatus " + to_string(VolunteerId) + " " + ActionStatusToString(getStatus());
     return res;
 }
 
@@ -313,13 +310,7 @@ string PrintVolunteerStatus::toString() const {
 PrintActionsLog::PrintActionsLog(){}
 
 void PrintActionsLog::act(WareHouse &wareHouse) {
-    vector<BaseAction*> actions = wareHouse.getActions();
-        
-    for(BaseAction* action:actions){
-        action->toString();
-        cout << "\n";
-    }
-
+    wareHouse.printOrders();
     wareHouse.addAction(this);
 }
 
@@ -328,8 +319,7 @@ PrintActionsLog * PrintActionsLog::clone() const{
 }
 
 string PrintActionsLog::toString() const {
-    string res = "log ";
-    res += "{}", ActionStatusToString(getStatus());
+    string res = "log "  + ActionStatusToString(getStatus());
     return res;
 }
 
