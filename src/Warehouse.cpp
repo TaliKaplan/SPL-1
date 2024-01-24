@@ -22,20 +22,10 @@ WareHouse::WareHouse(const string &configFilePath):
             //checks if the line was empty
             if (split.empty())
                 continue;
-            // Soldier Customer
-            if ((split[0] == "customer") && (split[2] == "soldier")) {
-                int id = newCustomerId();
-                addCustomer(new SoldierCustomer(id,split[1],std::stoi(split[3]),std::stoi(split[4])));
-                continue;
-            }
-
-            // Civilian Customer
-            if ((split[0] == "customer") && (split[2] == "civilian")) {
-                int id = newCustomerId();
-                addCustomer(new CivilianCustomer(id,split[1],std::stoi(split[3]),std::stoi(split[4])));
-                continue;
-            }
-
+            // Customer
+            if ((split[0] == "customer")) {
+                addCustomer(split[1], split[2],stoi(split[3]), stoi(split[4]));
+            } 
             // Regular Collector
             if ((split[0] == "volunteer") && (split[2] == "collector")) {
                 int id = newVolunteerId();
@@ -187,8 +177,14 @@ int WareHouse::newCustomerId() {
     return res;
 }
 
-void WareHouse::addCustomer(Customer *customer) {
-    customers.push_back(customer);
+void WareHouse::addCustomer(string name, string type, int dist, int maxOrders){
+    if(type.compare("soldier")){
+        SoldierCustomer* newCust = new SoldierCustomer(newCustomerId(), name, dist, maxOrders);
+        customers.push_back(newCust); 
+    }
+
+    CivilianCustomer* newCust = new CivilianCustomer(newCustomerId(), name, dist, maxOrders);
+    customers.push_back(newCust); 
 }
 
 int WareHouse::newVolunteerId() {

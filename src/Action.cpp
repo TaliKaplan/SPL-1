@@ -158,23 +158,21 @@ AddOrder::AddOrder(int id): customerId(id){}
 void AddOrder::act(WareHouse &wareHouse){
     if((!wareHouse.customerExists(customerId)) || !wareHouse.getCustomer(customerId).canMakeOrder()){
         error("Cannot place this order");
-        std::cout << "Error: {}", getErrorMsg();
+        std::cout << "Error: " + getErrorMsg() << endl;
     }
 
     else{
         int orderId = wareHouse.newOrderId();
         int distance = wareHouse.getCustomer(customerId).getCustomerDistance();
-        Order newOrder(orderId, customerId, distance);
+        Order* newOrder = new Order(orderId, customerId, distance);
         wareHouse.getCustomer(customerId).addOrder(orderId);
-        wareHouse.addOrder(&newOrder);
+        wareHouse.addOrder(newOrder);
     }
     wareHouse.addAction(this);
 }
 
 string AddOrder::toString() const{
-    string res = "order ";
-    res += "{} ", customerId;
-    res += "{}", ActionStatusToString(getStatus());
+    string res = "order " + to_string(customerId) + " " + ActionStatusToString(getStatus());
     return res;
 }
 
@@ -187,23 +185,21 @@ AddOrder * AddOrder::clone() const {
 //-----------class AddCustomer------------------
 
 CustomerType AddCustomer::toCustomerType(const string customerType){
-    if(customerType == "Soldier")
+    if(customerType == "soldier")
         return CustomerType::Soldier;
     return CustomerType::Civilian;    
+}
+
+string AddCustomer::typeToString() const{
+    if (customerType == CustomerType::Soldier)
+        return "soldier";
+    return "civilian";
 }
 
 AddCustomer::AddCustomer(string _customerName, string _customerType, int _distance, int _maxOrders): customerName(_customerName), customerType(toCustomerType(_customerType)), distance(_distance), maxOrders(_maxOrders) {}
 
 void AddCustomer::act(WareHouse &wareHouse) {
-    int custId = wareHouse.newCustomerId();
-    if(customerType == CustomerType::Soldier){
-        SoldierCustomer newCustomer(custId, customerName, distance, maxOrders);
-        wareHouse.addCustomer(&newCustomer);
-    }
-    else{
-        CivilianCustomer newCustomer(custId, customerName, distance, maxOrders);
-        wareHouse.addCustomer(&newCustomer);
-    }
+    wareHouse.addCustomer(customerName, typeToString(), distance, maxOrders);
     wareHouse.addAction(this);
 }
 
@@ -213,11 +209,11 @@ AddCustomer * AddCustomer::clone() const {
 
 string AddCustomer::toString() const {
     string res = "customer ";
-    res += "{} ", customerName;
-    res += "{} ", customerType;
-    res += "{} ", distance;
-    res += "{} ", maxOrders;
-    res += "{}", ActionStatusToString(getStatus());
+    res += customerName;
+    res += " " + typeToString();
+    res += " " + to_string(distance);
+    res += " " + to_string(maxOrders);
+    res += " " + ActionStatusToString(getStatus());
     return res;
 }
 
@@ -229,9 +225,9 @@ PrintOrderStatus::PrintOrderStatus(int id): orderId(id){}
 void PrintOrderStatus::act(WareHouse &wareHouse){
     if(!wareHouse.orderExists(orderId)){ //check if order exists
         error("Order doesn't exist");
-        std::cout << "Error: {}", getErrorMsg();
+        std::cout << "Error: " + getErrorMsg() << endl;
     }
-    else cout << wareHouse.getOrder(orderId).toString(); //order does exist
+    else cout << wareHouse.getOrder(orderId).toString() << endl; //order does exist
     
     wareHouse.addAction(this);
 }
@@ -242,8 +238,8 @@ PrintOrderStatus * PrintOrderStatus::clone() const {
     
 string PrintOrderStatus::toString() const{
     string res = "orderStatus ";
-    res += "{} ", orderId;
-    res += "{}", ActionStatusToString(getStatus());
+    res += to_string(orderId);
+    res += " " + ActionStatusToString(getStatus());
     return res;
 }
 
@@ -266,6 +262,8 @@ void PrintCustomerStatus::act(WareHouse &wareHouse){
             std::cout << "OrderID: " + to_string(id) << endl ;
             std::cout << "OrderStatus: " + wareHouse.getOrder(id).StatusToString() << endl;
         }
+
+        std::cout << "numOrderLeft: " + to_string(wareHouse.getCustomer(customerId).getOrdersLeft()) << endl;
     }
 
     wareHouse.addAction(this);
@@ -346,7 +344,7 @@ Close * Close::clone() const{
 
 string Close::toString() const {
     string res = "close ";
-    res += "{}", ActionStatusToString(getStatus());
+    res += ActionStatusToString(getStatus());
     return res;
 }
 
@@ -366,7 +364,7 @@ BackupWareHouse * BackupWareHouse::clone() const {
 
 string BackupWareHouse::toString() const {
     string res = "backup ";
-    res += "{}", ActionStatusToString(getStatus());
+    res += ActionStatusToString(getStatus());
     return res;
 }
 
@@ -379,7 +377,7 @@ void RestoreWareHouse::act(WareHouse &wareHouse) {
     if(backup == nullptr)
     {
         error("No backup available");
-        std::cout << "Error: {}", getErrorMsg();
+        std::cout << "Error: " + getErrorMsg() << endl;
     }
 
     else{
@@ -395,6 +393,6 @@ RestoreWareHouse * RestoreWareHouse::clone() const {
 
 string RestoreWareHouse::toString() const {
     string res = "restore ";
-    res += "{}", ActionStatusToString(getStatus());
+    res += ActionStatusToString(getStatus());
     return res;
 }
