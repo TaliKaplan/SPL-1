@@ -1,5 +1,4 @@
 #include "../include/Action.h"
-//#include "main.cpp"
 #include <iostream>
 #include <vector>
 #include <string>
@@ -49,20 +48,19 @@ void SimulateStep::act(WareHouse &wareHouse) {
     
     //stage 1
     for(int i=1; i<=numOfSteps;i++){ //performing a certain number of steps
-        
-        int index = 0;
-        
-        for(Order* p_order:pending){ //iterating all pending orders
+
+        for (int index = 0; index < pending.size(); index ++){// we are deleting while iterating so using an iterator messes things up
+            Order* p_order = pending[index];
             if(p_order->getStatus() == OrderStatus::PENDING){ //order in status pending
                 if(p_order->getCollectorId() == NO_VOLUNTEER){ //order isn't assigned to a collector yet - need to assign a collector
-                    
                     for(Volunteer* c: volunteers){
                         if(c->canTakeOrder(*p_order))
                         {//assign order to collector
                             c->acceptOrder(*p_order);
                             p_order->setCollectorId(c->getId());
-                            p_order->setStatus(OrderStatus::COLLECTING);
+                            p_order->setStatus(OrderStatus::COLLECTING);;
                             pending.erase(std::next(pending.begin(), index));
+                            index --;//if an elemet got deleted then the whole least is now shorter by 1 
                             inProcess.push_back(p_order);
                             break;
                         }
@@ -75,11 +73,12 @@ void SimulateStep::act(WareHouse &wareHouse) {
 
                     for(Volunteer* d:volunteers){
                         if(d->canTakeOrder(*p_order))
-                        {//assign orde to driver
+                        {//assign order to driver
                             d->acceptOrder(*p_order);
                             p_order->setDriverId(d->getId());
                             p_order->setStatus(OrderStatus::DELIVERING);
                             pending.erase(std::next(pending.begin(), index));
+                            index --;//if an elemet got deleted then the whole least is now shorter by 1
                             inProcess.push_back(p_order);
                             break;
                         }
@@ -87,15 +86,14 @@ void SimulateStep::act(WareHouse &wareHouse) {
                 }
             }
 
-            index++;
         }
 
 
         //stages 2 - 4
-        index = 0;
-
-        for(Volunteer* v: volunteers){ //iterate all volunteers
-            
+        for (int index = 0; index < volunteers.size() ; index ++){//for(Volunteer* v: volunteers){ //iterate all volunteers
+            Volunteer* v = volunteers[index];
+            if (v->getActiveOrderId() == NO_ORDER) // checks if this volunteer is even doing anything
+                continue;
             Order o = wareHouse.getOrder(v->getActiveOrderId());
             v->step(); //stage 2 - make a step
             //stage 3
@@ -106,33 +104,33 @@ void SimulateStep::act(WareHouse &wareHouse) {
                     for(Order* order:inProcess){
                         if(order->getId() == o.getId()){
                             inProcess.erase(std::next(inProcess.begin(), i));
+                            pending.push_back(order);
                             break;
                         }
                         i++;
                     }
-                    pending.push_back(new Order(o));
                 }
                 else if(o.getStatus() == OrderStatus::DELIVERING){ //driver is done delivering
-                    o.setStatus(OrderStatus::COMPLETED);
                     int i = 0;
                     for(Order* order:inProcess){
                         if(order->getId() == o.getId()){
+                            order->setStatus(OrderStatus::COMPLETED);
                             inProcess.erase(std::next(inProcess.begin(), i));
+                            completed.push_back(order);
                             break;
                         }
                         i++;
                     }
-                    completed.push_back(new Order(o));
                 }
 
                 //stage 4 - delete unnecessary volunteers
-                if(!v->hasOrdersLeft()){
+                if(!v->hasOrdersLeft() and v->getActiveOrderId() == NO_ORDER){
                     volunteers.erase(std::next(volunteers.begin(), index));
+                    index --;//next volunteer will be in the same index as the one that was just deleted
                     delete v;
                 }
             }
 
-            index++;
         }
     }
 
@@ -141,8 +139,8 @@ void SimulateStep::act(WareHouse &wareHouse) {
 
 std::string SimulateStep::toString() const {
     string res = "simulateStep ";
-    res += "{} ", numOfSteps;
-    res += "{}", ActionStatusToString(getStatus());
+    res += to_string(numOfSteps);
+    res += " " + ActionStatusToString(getStatus());
     return res;
 }
 
@@ -354,7 +352,10 @@ string Close::toString() const {
 BackupWareHouse::BackupWareHouse(){}
 
 void BackupWareHouse::act(WareHouse &wareHouse) {
-    *backup = wareHouse;
+    if (backup == nullptr)
+        backup = new WareHouse(wareHouse);
+    else
+        *backup = wareHouse;
     wareHouse.addAction(this);
 }
 
@@ -384,7 +385,7 @@ void RestoreWareHouse::act(WareHouse &wareHouse) {
         wareHouse = *backup;
     }
 
-    wareHouse.addAction(this);
+    //wareHouse.addAction(this); // might worth to ask but i think this should never apear in the log since its done just before going to the previous backup
 }
 
 RestoreWareHouse * RestoreWareHouse::clone() const {

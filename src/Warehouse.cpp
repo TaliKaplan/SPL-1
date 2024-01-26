@@ -56,7 +56,6 @@ WareHouse::WareHouse(const string &configFilePath):
         }
         file.close();
     }
-
 }
 
 WareHouse::WareHouse(const WareHouse &other):
@@ -95,12 +94,10 @@ WareHouse::~WareHouse(){
 WareHouse &WareHouse::operator=(const WareHouse &other) {
     if (this != &other) {
         freeResources();
-
         isOpen = other.isOpen;
         customerCounter = other.customerCounter;
         volunteerCounter = other.volunteerCounter;
         orderCounter = other.orderCounter;
-
         for (Order *o:other.pendingOrders) {
             pendingOrders.push_back(o->clone());
         }
@@ -134,31 +131,37 @@ void WareHouse::freeResources() {
         delete o;
         o = nullptr;
     }
+    pendingOrders.clear();
 
     for (Order *o:inProcessOrders) {
         delete o;
         o = nullptr;
     }
+    inProcessOrders.clear();
 
     for (Order *o:completedOrders) {
         delete o;
         o = nullptr;
     }
+    completedOrders.clear();
 
     for (Volunteer *v:volunteers) {
         delete v;
         v = nullptr;
     }
+    volunteers.clear();
 
     for (Customer *c:customers) {
         delete c;
         c = nullptr;
     }
+    customers.clear();
 
     for (BaseAction *a:actionsLog) {
         delete a;
         a = nullptr;
     }
+    actionsLog.clear();
 }
 
 int WareHouse::newOrderId() {
@@ -181,6 +184,7 @@ void WareHouse::addCustomer(string name, string type, int dist, int maxOrders){
     if(type.compare("soldier")){
         SoldierCustomer* newCust = new SoldierCustomer(newCustomerId(), name, dist, maxOrders);
         customers.push_back(newCust); 
+        return;
     }
 
     CivilianCustomer* newCust = new CivilianCustomer(newCustomerId(), name, dist, maxOrders);
