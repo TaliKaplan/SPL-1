@@ -22,6 +22,10 @@ int Customer::getNumOrders() const {
     return ordersId.size();
 }
 
+int Customer::getOrdersLeft() const{
+    return getMaxOrders() - getNumOrders();
+}
+
 bool Customer::canMakeOrder() const {
     return getNumOrders() < getMaxOrders();
 }

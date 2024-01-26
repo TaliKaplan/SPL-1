@@ -32,7 +32,7 @@ class Order {
         OrderStatus getStatus() const;
         const string toString() const;
         Order *clone() const; // Return a copy of the order.
-        string StatusToString();
+        string StatusToString() const;
 
     private:
         const int id;

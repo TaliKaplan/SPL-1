@@ -70,6 +70,7 @@ class AddCustomer : public BaseAction {
         const int distance;
         const int maxOrders;
         CustomerType toCustomerType(const string customerType);
+        string typeToString() const;
 };
 
 

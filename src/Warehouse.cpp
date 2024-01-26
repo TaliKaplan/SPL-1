@@ -3,6 +3,7 @@
 #include <sstream>
 #include <fstream>
 
+extern WareHouse* backup;
 WareHouse::WareHouse(const string &configFilePath):
     isOpen(false), actionsLog(), volunteers(), pendingOrders(), inProcessOrders(),
     completedOrders(), customers(), customerCounter(0), volunteerCounter(0), orderCounter(0)
@@ -18,48 +19,42 @@ WareHouse::WareHouse(const string &configFilePath):
                 split.push_back(s);
             }
 
-            // Soldier Customer
-            if ((split[0] == "customer") && (split[2] == "soldier")) {
-                int id = newCustomerId();
-                addCustomer(new SoldierCustomer(id,split[1],std::stoi(split[3]),std::stoi(split[4])));
+            //checks if the line was empty
+            if (split.empty())
                 continue;
-            }
-
-            // Civilian Customer
-            if ((split[0] == "customer") && (split[2] == "civilian")) {
-                int id = newCustomerId();
-                addCustomer(new CivilianCustomer(id,split[1],std::stoi(split[3]),std::stoi(split[4])));
-                continue;
-            }
-
+            // Customer
+            if ((split[0] == "customer")) {
+                addCustomer(split[1], split[2],stoi(split[3]), stoi(split[4]));
+            } 
             // Regular Collector
-            if ((split[0] == "volunteer") && (split[2] == "collector") && (split.size() == 4)) {
+            if ((split[0] == "volunteer") && (split[2] == "collector")) {
                 int id = newVolunteerId();
                 addVolunteer(new CollectorVolunteer(id,split[1],stoi(split[3])));
                 continue;
             }
 
             // Limited Collector
-            if ((split[0] == "volunteer") && (split[2] == "collector") && (split.size() == 5)) {
+            if ((split[0] == "volunteer") && (split[2] == "limited_collector") ) {
                 int id = newVolunteerId();
                 addVolunteer(new LimitedCollectorVolunteer(id,split[1],stoi(split[3]),stoi(split[4])));
                 continue;
             }
 
             // Regular Driver
-            if ((split[0] == "volunteer") && (split[2] == "driver") && (split.size() == 5)) {
+            if ((split[0] == "volunteer") && (split[2] == "driver") ) {
                 int id = newVolunteerId();
                 addVolunteer(new DriverVolunteer(id,split[1],stoi(split[3]),stoi(split[4])));
                 continue;
             }
 
             // Limited Driver
-            if ((split[0] == "volunteer") && (split[2] == "driver") && (split.size() == 6)) {
+            if ((split[0] == "volunteer") && (split[2] == "limited_driver")) {
                 int id = newVolunteerId();
                 addVolunteer(new LimitedDriverVolunteer(id,split[1],stoi(split[3]),stoi(split[4]),stoi(split[5])));
                 continue;
             }
         }
+        file.close();
     }
 }
 
@@ -99,12 +94,10 @@ WareHouse::~WareHouse(){
 WareHouse &WareHouse::operator=(const WareHouse &other) {
     if (this != &other) {
         freeResources();
-
         isOpen = other.isOpen;
         customerCounter = other.customerCounter;
         volunteerCounter = other.volunteerCounter;
         orderCounter = other.orderCounter;
-
         for (Order *o:other.pendingOrders) {
             pendingOrders.push_back(o->clone());
         }
@@ -138,31 +131,37 @@ void WareHouse::freeResources() {
         delete o;
         o = nullptr;
     }
+    pendingOrders.clear();
 
     for (Order *o:inProcessOrders) {
         delete o;
         o = nullptr;
     }
+    inProcessOrders.clear();
 
     for (Order *o:completedOrders) {
         delete o;
         o = nullptr;
     }
+    completedOrders.clear();
 
     for (Volunteer *v:volunteers) {
         delete v;
         v = nullptr;
     }
+    volunteers.clear();
 
     for (Customer *c:customers) {
         delete c;
         c = nullptr;
     }
+    customers.clear();
 
     for (BaseAction *a:actionsLog) {
         delete a;
         a = nullptr;
     }
+    actionsLog.clear();
 }
 
 int WareHouse::newOrderId() {
@@ -181,8 +180,15 @@ int WareHouse::newCustomerId() {
     return res;
 }
 
-void WareHouse::addCustomer(Customer *customer) {
-    customers.push_back(customer);
+void WareHouse::addCustomer(string name, string type, int dist, int maxOrders){
+    if(type.compare("soldier")){
+        SoldierCustomer* newCust = new SoldierCustomer(newCustomerId(), name, dist, maxOrders);
+        customers.push_back(newCust); 
+        return;
+    }
+
+    CivilianCustomer* newCust = new CivilianCustomer(newCustomerId(), name, dist, maxOrders);
+    customers.push_back(newCust); 
 }
 
 int WareHouse::newVolunteerId() {
@@ -205,7 +211,7 @@ const vector<BaseAction*> &WareHouse::getActions() const {
 
 // because customers aren't getting deleted during the simulation, every customerId below customerCounter belongs to an existing customer.
 bool WareHouse::customerExists(int customerId) const {
-    return (customerCounter < customerCounter);
+    return (customerId < customerCounter);
 }
 
 // NOTE: this should only be called after verifying the customer exists.
@@ -335,6 +341,12 @@ vector<Volunteer*>& WareHouse::getVolunteers(){
     return volunteers;
 }
 
+void WareHouse::printOrders() const{
+    for (BaseAction* act : actionsLog){
+        std::cout << act->toString() << std::endl;
+    }
+}
+
 void WareHouse::start() {
     open();
     string userInput; // this holds the user's input for each iteration.
@@ -349,52 +361,62 @@ void WareHouse::start() {
         }
 
         if (split[0] == "step") {
-            // relevant action
+            SimulateStep* step = new SimulateStep(stoi(split[1]));//sends number of steps
+            step->act(*this);
             continue;
         }
 
         if (split[0] == "order") {
-            // relevant action
+            AddOrder* order = new AddOrder(stoi(split[1]));//sends customer id
+            order->act(*this);
             continue;
         }
 
         if (split[0] == "customer") {
-            // relevant action
+            AddCustomer* cust = new AddCustomer(split[1], split[2], stoi(split[3]), stoi(split[4]));//(name, type, distance, max orders)
+            cust->act(*this);
             continue;
         }
 
         if (split[0] == "orderStatus") {
-            // relevant action
+            PrintOrderStatus* orderStat = new PrintOrderStatus(stoi(split[1]));//(order id)
+            orderStat->act(*this);
             continue;
         }
 
         if (split[0] == "customerStatus") {
-            // relevant action
+            PrintCustomerStatus* custStat = new PrintCustomerStatus(stoi(split[1]));//(customer id)
+            custStat->act(*this);
             continue;
         }
 
         if (split[0] == "volunteerStatus") {
-            // relevant action
+            PrintVolunteerStatus* volStat = new PrintVolunteerStatus(stoi(split[1]));//(volunteer id)
+            volStat->act(*this);
             continue;
         }
 
         if (split[0] == "log") {
-            // relevant action
+            PrintActionsLog* actLog = new PrintActionsLog();
+            actLog->act(*this);
             continue;
         }
 
         if (split[0] == "close") {
-            // relevant action
+            Close* close = new Close();
+            close->act(*this);
             continue;
         }
 
         if (split[0] == "backup") {
-            // relevant action
+            BackupWareHouse* back = new BackupWareHouse();
+            back->act(*this);
             continue;
         }
 
         if (split[0] == "restore") {
-            // relevant action
+            RestoreWareHouse* restore = new RestoreWareHouse();
+            restore->act(*this);
             continue;
         }
 

@@ -38,30 +38,7 @@ OrderStatus Order::getStatus() const{
     return status;
 }
 
-const string Order::toString() const{
-    string res = "";
-    res += "OrderId: {}\n", id;
-    res += "OrderStatus: {}\n", status;
-    res += "CustomerID: {}\n", customerId;
-    res += "Collector: ";
-    
-    if(collectorId == NO_VOLUNTEER)
-        res += "None\n";
-    else res += "{}\n", collectorId;
-
-    if(driverId == NO_VOLUNTEER)
-        res += "None\n";
-    else res += "{}\n", driverId;
-
-    return res;
-
-}
-
-Order * Order::clone() const{
-    return new Order(*this);
-}
-
-string Order::StatusToString(){
+string Order::StatusToString() const{
     string res = "";
     if(status == OrderStatus::PENDING)
         res = "PENDING";
@@ -72,3 +49,27 @@ string Order::StatusToString(){
     else res = "COMPLETED";
     return res;
 }
+
+const string Order::toString() const{
+    string res = "";
+    res += "OrderId: " + std::to_string(id) + "\n";
+    res += "OrderStatus: " + StatusToString() + "\n";
+    res += "CustomerID: " + std::to_string(customerId) + "\n";
+    res += "Collector: ";
+    
+    if(collectorId == NO_VOLUNTEER)
+        res += "None\n";
+    else res += std::to_string(collectorId) +"\n";
+    res += "Driver: ";
+    if(driverId == NO_VOLUNTEER)
+        res += "None";
+    else res += std::to_string(driverId);
+
+    return res;
+
+}
+
+Order * Order::clone() const{
+    return new Order(*this);
+}
+
