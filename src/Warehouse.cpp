@@ -307,21 +307,19 @@ Order &WareHouse::getOrder(int orderId) const {
 }
 
 
-vector<Order*> &WareHouse::getOrders() const {
-    vector<Order*> orders;
+void WareHouse::printOrders() const {
+
     for (Order *o:pendingOrders) {
-        orders.push_back(o);
+        cout << "OrderID: " << o->getId() <<", CustomerID: " << o->getCustomerId() << ",OrderStatus: " << o->StatusToString() <<endl;
     }
 
     for (Order *o:inProcessOrders) {
-        orders.push_back(o);
+        cout << "OrderID: " << o->getId() <<", CustomerID: " << o->getCustomerId() << ",OrderStatus: " << o->StatusToString() <<endl;
     }
 
     for (Order *o:completedOrders) {
-        orders.push_back(o);
+        cout << "OrderID: " << o->getId() <<", CustomerID: " << o->getCustomerId() << ",OrderStatus: " << o->StatusToString() <<endl;
     }
-
-    return orders;
 }
 
 
@@ -341,7 +339,7 @@ vector<Volunteer*>& WareHouse::getVolunteers(){
     return volunteers;
 }
 
-void WareHouse::printOrders() const{
+void WareHouse::printActions() const{
     for (BaseAction* act : actionsLog){
         std::cout << act->toString() << std::endl;
     }
@@ -405,7 +403,7 @@ void WareHouse::start() {
         if (split[0] == "close") {
             Close* close = new Close();
             close->act(*this);
-            continue;
+            return; // ends the start loop to close the program
         }
 
         if (split[0] == "backup") {

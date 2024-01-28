@@ -306,7 +306,7 @@ string PrintVolunteerStatus::toString() const {
 PrintActionsLog::PrintActionsLog(){}
 
 void PrintActionsLog::act(WareHouse &wareHouse) {
-    wareHouse.printOrders();
+    wareHouse.printActions();
     wareHouse.addAction(this);
 }
 
@@ -325,11 +325,7 @@ string PrintActionsLog::toString() const {
 Close::Close(){}
 
 void Close::act(WareHouse &wareHouse) {
-    vector<Order*> orders = wareHouse.getOrders();
-
-    for(Order* o: orders){
-        cout << "OrderID: " << o->getId() <<", CustomerID: " << o->getCustomerId() << ",OrderStatus: " << o->StatusToString() <<endl;
-    }
+    wareHouse.printOrders();
 
     //we don't add the current action to the action list because all the data are about to get deleted anyway.
     wareHouse.freeResources();
