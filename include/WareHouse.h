@@ -37,18 +37,18 @@ class WareHouse {
         int newCustomerId(); // Returns an available ID for a new customer, increments customerCounter by 1.
         int newVolunteerId(); // Returns an available ID for a volunteer, increments volunteerCounter by 1.
         int newOrderId(); // Returns an available ID for a new order, increments orderCounter by 1.
-        void addCustomer(string name, string type, int dist, int maxOrders);
-        void addVolunteer(Volunteer* volunteer);
+        void addCustomer(string name, string type, int dist, int maxOrders);// Adds a customer.
+        void addVolunteer(Volunteer* volunteer);// Adds a volunteer.
         bool customerExists(int customerId) const; // We need this to call get only if the customer exists.
         bool volunteerExists(int volunteerId) const; // We need this to call get only if the volunteer exists.
         bool orderExists(int orderId) const; // We need this to call get only if the order exists.
         void freeResources(); // Clears all allocated resources.
-        vector<Order*>& getOrders() const; // Returns a Vector with all the orders.
         vector<Order*>& getPendingOrders(); //Returns a reference of the Vector with all pending orders.
         vector<Order*>& getInProcessOrders(); //Returns a reference of the Vector with all inProcess orders.
         vector<Order*>& getCompletedOrders(); //Returns a reference of the Vector with all completed orders.
         vector<Volunteer*>& getVolunteers(); //Returns a reference of the Vector with all volunteers.
-        void printOrders() const;
+        void printOrders() const; // Prints all the orders.
+        void printActions() const;// Prints all previous made actions
 
     private:
         bool isOpen;
