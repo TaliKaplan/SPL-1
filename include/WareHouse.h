@@ -28,10 +28,12 @@ class WareHouse {
         void close();
         void open();
 
-        // rule of 3
+        // rule of 5
         virtual ~WareHouse();
         WareHouse(const WareHouse &other);
         WareHouse& operator=(const WareHouse &other);
+        WareHouse(WareHouse &&other);
+        WareHouse& operator=(WareHouse &&other);
 
         // Custom methods
         int newCustomerId(); // Returns an available ID for a new customer, increments customerCounter by 1.
