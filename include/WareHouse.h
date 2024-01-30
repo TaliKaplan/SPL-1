@@ -6,6 +6,7 @@ using namespace std;
 #include "Order.h"
 #include "Customer.h"
 #include "Volunteer.h"
+#include "Action.h"
 
 
 class BaseAction;
@@ -64,5 +65,3 @@ class WareHouse {
         int volunteerCounter; //For assigning unique volunteer IDs
         int orderCounter; //For assigning unique order IDs
 };
-
-#include "Action.h"
