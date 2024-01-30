@@ -34,6 +34,8 @@ class Order {
         Order *clone() const; // Return a copy of the order.
         string StatusToString() const;
 
+        //No resources - rule of 5 is unneccesary.
+
     private:
         const int id;
         const int customerId;

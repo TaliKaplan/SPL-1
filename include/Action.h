@@ -43,6 +43,8 @@ class SimulateStep : public BaseAction {
         std::string toString() const override;
         SimulateStep *clone() const override;
 
+        //No resources - rule of 5 is unneccesary.
+
     private:
         const int numOfSteps;
 };
@@ -53,6 +55,9 @@ class AddOrder : public BaseAction {
         void act(WareHouse &wareHouse) override;
         string toString() const override;
         AddOrder *clone() const override;
+
+        //No resources - rule of 5 is unneccesary.
+
     private:
         const int customerId;
 };
@@ -64,6 +69,9 @@ class AddCustomer : public BaseAction {
         void act(WareHouse &wareHouse) override;
         AddCustomer *clone() const override;
         string toString() const override;
+
+        //No resources - rule of 5 is unneccesary.
+
     private:
         const string customerName;
         const CustomerType customerType;
@@ -81,6 +89,9 @@ class PrintOrderStatus : public BaseAction {
         void act(WareHouse &wareHouse) override;
         PrintOrderStatus *clone() const override;
         string toString() const override;
+
+        //No resources - rule of 5 is unneccesary.
+
     private:
         const int orderId;
 };
@@ -91,6 +102,9 @@ class PrintCustomerStatus: public BaseAction {
         void act(WareHouse &wareHouse) override;
         PrintCustomerStatus *clone() const override;
         string toString() const override;
+
+        //No resources - rule of 5 is unneccesary.
+
     private:
         const int customerId;
 };
@@ -102,6 +116,9 @@ class PrintVolunteerStatus : public BaseAction {
         void act(WareHouse &wareHouse) override;
         PrintVolunteerStatus *clone() const override;
         string toString() const override;
+
+        //No resources - rule of 5 is unneccesary.
+
     private:
         const int VolunteerId;
 };
@@ -113,6 +130,9 @@ class PrintActionsLog : public BaseAction {
         void act(WareHouse &wareHouse) override;
         PrintActionsLog *clone() const override;
         string toString() const override;
+
+        //No resources - rule of 5 is unneccesary.
+
     private:
 };
 
@@ -122,6 +142,9 @@ class Close : public BaseAction {
         void act(WareHouse &wareHouse) override;
         Close *clone() const override;
         string toString() const override;
+
+        //No resources - rule of 5 is unneccesary.
+
     private:
         
 };
@@ -132,6 +155,9 @@ class BackupWareHouse : public BaseAction {
         void act(WareHouse &wareHouse) override;
         BackupWareHouse *clone() const override;
         string toString() const override;
+
+        //No resources - rule of 5 is unneccesary.
+
     private:
 };
 
@@ -142,5 +168,8 @@ class RestoreWareHouse : public BaseAction {
         void act(WareHouse &wareHouse) override;
         RestoreWareHouse *clone() const override;
         string toString() const override;
+
+        //No resources - rule of 5 is unneccesary.
+        
     private:
 };

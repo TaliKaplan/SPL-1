@@ -23,7 +23,6 @@ class Customer {
 
         virtual Customer *clone() const = 0; // Return a copy of the customer
 
-        
     private:
         const int id;
         const string name;
@@ -37,6 +36,8 @@ class SoldierCustomer: public Customer {
     public:
         SoldierCustomer(int id, string name, int locationDistance, int maxOrders);
         SoldierCustomer *clone() const override;
+
+        //No resources - rule of 5 is unneccesary.
     
     private:
         
@@ -46,6 +47,8 @@ class CivilianCustomer: public Customer {
     public:
         CivilianCustomer(int id, string name, int locationDistance, int maxOrders);
         CivilianCustomer *clone() const override;
+
+        //No resources - rule of 5 is unneccesary.
     
     private:
         
