@@ -126,6 +126,84 @@ WareHouse &WareHouse::operator=(const WareHouse &other) {
     return *this;
 }
 
+WareHouse::WareHouse(WareHouse &&other):
+isOpen(other.isOpen),actionsLog(),volunteers(),pendingOrders(),inProcessOrders(),
+completedOrders(),customers(),customerCounter(other.customerCounter),volunteerCounter(other.volunteerCounter),orderCounter(other.orderCounter)
+{
+    for (Order *o:other.pendingOrders) {
+        pendingOrders.push_back(o);
+    }
+
+    for (Order *o:other.inProcessOrders) {
+        inProcessOrders.push_back(o);
+    }
+
+    for (Order *o:other.completedOrders) {
+        completedOrders.push_back(o);
+    }
+
+    for (Volunteer *v:other.volunteers) {
+        volunteers.push_back(v);
+    }
+
+    for (Customer *c:other.customers) {
+        customers.push_back(c);
+    }
+
+    for (BaseAction *a:other.actionsLog) {
+        actionsLog.push_back(a);
+    }
+
+    other.pendingOrders.clear();
+    other.inProcessOrders.clear();
+    other.completedOrders.clear();
+    other.volunteers.clear();
+    other.customers.clear();
+    other.actionsLog.clear();
+}
+
+WareHouse &WareHouse::operator=(WareHouse &&other) {
+    if (this != &other) {
+        freeResources();
+        isOpen = other.isOpen;
+        customerCounter = other.customerCounter;
+        volunteerCounter = other.volunteerCounter;
+        orderCounter = other.orderCounter;
+        for (Order *o:other.pendingOrders) {
+            pendingOrders.push_back(o);
+        }
+
+        for (Order *o:other.inProcessOrders) {
+            inProcessOrders.push_back(o);
+        }
+
+        for (Order *o:other.completedOrders) {
+            completedOrders.push_back(o);
+        }
+
+        for (Volunteer *v:other.volunteers) {
+            volunteers.push_back(v);
+        }
+
+        for (Customer *c:other.customers) {
+            customers.push_back(c);
+        }
+
+        for (BaseAction *a:other.actionsLog) {
+            actionsLog.push_back(a);
+        }
+
+        other.pendingOrders.clear();
+        other.inProcessOrders.clear();
+        other.completedOrders.clear();
+        other.volunteers.clear();
+        other.customers.clear();
+        other.actionsLog.clear();
+    }
+
+    return *this;
+}
+
 void WareHouse::freeResources() {
     for (Order *o:pendingOrders) {
         delete o;
