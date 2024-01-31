@@ -258,13 +258,14 @@ int WareHouse::newCustomerId() {
 }
 
 void WareHouse::addCustomer(string name, string type, int dist, int maxOrders){
+    int id = newCustomerId();
     if(type.compare("soldier")){
-        SoldierCustomer* newCust = new SoldierCustomer(newCustomerId(), name, dist, maxOrders);
+        SoldierCustomer* newCust = new SoldierCustomer(id, name, dist, maxOrders);
         customers.push_back(newCust); 
         return;
     }
 
-    CivilianCustomer* newCust = new CivilianCustomer(newCustomerId(), name, dist, maxOrders);
+    CivilianCustomer* newCust = new CivilianCustomer(id, name, dist, maxOrders);
     customers.push_back(newCust); 
 }
 
@@ -335,25 +336,7 @@ Volunteer &WareHouse::getVolunteer(int volunteerId) const {
 // NOTE: we can't assume the vectors are sorted here because orders will jump between
 // them unrelated to their id.
 bool WareHouse::orderExists(int orderId) const {
-    for (Order *o:pendingOrders) {
-        if (o->getId() == orderId) {
-            return true;
-        }
-    }
-
-    for (Order *o:inProcessOrders) {
-        if (o->getId() == orderId) {
-            return true;
-        }
-    }
-
-    for (Order *o:completedOrders) {
-        if (o->getId() == orderId) {
-            return true;
-        }
-    }
-
-    return false;
+    return (orderId<orderCounter);
 }
 
 
@@ -387,15 +370,15 @@ Order &WareHouse::getOrder(int orderId) const {
 void WareHouse::printOrders() const {
 
     for (Order *o:pendingOrders) {
-        cout << "OrderID: " << o->getId() <<", CustomerID: " << o->getCustomerId() << ",OrderStatus: " << o->StatusToString() <<endl;
+        cout << "OrderID: " << o->getId() <<", CustomerID: " << o->getCustomerId() << ", OrderStatus: " << o->StatusToString() <<endl;
     }
 
     for (Order *o:inProcessOrders) {
-        cout << "OrderID: " << o->getId() <<", CustomerID: " << o->getCustomerId() << ",OrderStatus: " << o->StatusToString() <<endl;
+        cout << "OrderID: " << o->getId() <<", CustomerID: " << o->getCustomerId() << ", OrderStatus: " << o->StatusToString() <<endl;
     }
 
     for (Order *o:completedOrders) {
-        cout << "OrderID: " << o->getId() <<", CustomerID: " << o->getCustomerId() << ",OrderStatus: " << o->StatusToString() <<endl;
+        cout << "OrderID: " << o->getId() <<", CustomerID: " << o->getCustomerId() << ", OrderStatus: " << o->StatusToString() <<endl;
     }
 }
 
