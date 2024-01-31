@@ -46,9 +46,8 @@ void SimulateStep::act(WareHouse &wareHouse) {
     vector<Order*> &inProcess = wareHouse.getInProcessOrders();
     vector<Order*> &completed = wareHouse.getCompletedOrders();
     
-    //stage 1
     for(int i=1; i<=numOfSteps;i++){ //performing a certain number of steps
-
+        //stage 1
         for (int index = 0; index < pending.size(); index ++){// we are deleting while iterating so using an iterator messes things up
             Order* p_order = pending[index];
             if(p_order->getStatus() == OrderStatus::PENDING){ //order in status pending
@@ -90,7 +89,7 @@ void SimulateStep::act(WareHouse &wareHouse) {
 
 
         //stages 2 - 4
-        for (int index = 0; index < volunteers.size() ; index ++){//for(Volunteer* v: volunteers){ //iterate all volunteers
+        for (int index = 0; index < volunteers.size() ; index ++){//for(Volunteer* v: volunteers){ //iterate all volunteers //did it with indexes for the deletion in stage 4
             Volunteer* v = volunteers[index];
             if (v->getActiveOrderId() == NO_ORDER) // checks if this volunteer is even doing anything
                 continue;
@@ -182,7 +181,7 @@ AddOrder * AddOrder::clone() const {
 
 //-----------class AddCustomer------------------
 
-CustomerType AddCustomer::toCustomerType(const string customerType){
+CustomerType AddCustomer::toCustomerType(const string &customerType){
     if(customerType == "soldier")
         return CustomerType::Soldier;
     return CustomerType::Civilian;    
@@ -194,7 +193,7 @@ string AddCustomer::typeToString() const{
     return "civilian";
 }
 
-AddCustomer::AddCustomer(string _customerName, string _customerType, int _distance, int _maxOrders): customerName(_customerName), customerType(toCustomerType(_customerType)), distance(_distance), maxOrders(_maxOrders) {}
+AddCustomer::AddCustomer(string &_customerName, string &_customerType, int _distance, int _maxOrders): customerName(_customerName), customerType(toCustomerType(_customerType)), distance(_distance), maxOrders(_maxOrders) {}
 
 void AddCustomer::act(WareHouse &wareHouse) {
     wareHouse.addCustomer(customerName, typeToString(), distance, maxOrders);
@@ -326,7 +325,7 @@ Close::Close(){}
 
 void Close::act(WareHouse &wareHouse) {
     wareHouse.printOrders();
-
+    wareHouse.addAction(this); //I'm adding the action to the vector so that freeResources() will delete it too - to avoid memory leak.
     //we don't add the current action to the action list because all the data are about to get deleted anyway.
     wareHouse.freeResources();
     wareHouse.close();
@@ -351,7 +350,7 @@ void BackupWareHouse::act(WareHouse &wareHouse) {
     if (backup == nullptr)
         backup = new WareHouse(wareHouse);
     else
-        *backup = wareHouse;
+        *backup = wareHouse; //no need to free backup's resources - the function freeResources() in the copy assignment operator does it already.
     wareHouse.addAction(this);
 }
 
@@ -378,10 +377,10 @@ void RestoreWareHouse::act(WareHouse &wareHouse) {
     }
 
     else{
-        wareHouse = *backup;
+        wareHouse = *backup; //no need to free this's resources - the function freeResources() in the copy assignment operator does it already.
     }
 
-    //wareHouse.addAction(this); // might worth to ask but i think this should never apear in the log since its done just before going to the previous backup
+    wareHouse.addAction(this);
 }
 
 RestoreWareHouse * RestoreWareHouse::clone() const {
