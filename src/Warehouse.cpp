@@ -3,7 +3,6 @@
 #include <sstream>
 #include <fstream>
 
-extern WareHouse* backup;
 WareHouse::WareHouse(const string &configFilePath):
     isOpen(false), actionsLog(), volunteers(), pendingOrders(), inProcessOrders(),
     completedOrders(), customers(), customerCounter(0), volunteerCounter(0), orderCounter(0)
