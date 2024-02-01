@@ -6,6 +6,7 @@ using namespace std;
 #include "Order.h"
 #include "Customer.h"
 #include "Volunteer.h"
+#include "Action.h"
 
 
 class BaseAction;
@@ -28,10 +29,12 @@ class WareHouse {
         void close();
         void open();
 
-        // rule of 3
+        // rule of 5
         virtual ~WareHouse();
         WareHouse(const WareHouse &other);
         WareHouse& operator=(const WareHouse &other);
+        WareHouse(WareHouse &&other);
+        WareHouse& operator=(WareHouse &&other);
 
         // Custom methods
         int newCustomerId(); // Returns an available ID for a new customer, increments customerCounter by 1.
@@ -62,5 +65,3 @@ class WareHouse {
         int volunteerCounter; //For assigning unique volunteer IDs
         int orderCounter; //For assigning unique order IDs
 };
-
-#include "Action.h"

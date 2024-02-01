@@ -3,7 +3,6 @@
 #include <sstream>
 #include <fstream>
 
-extern WareHouse* backup;
 WareHouse::WareHouse(const string &configFilePath):
     isOpen(false), actionsLog(), volunteers(), pendingOrders(), inProcessOrders(),
     completedOrders(), customers(), customerCounter(0), volunteerCounter(0), orderCounter(0)
@@ -126,6 +125,84 @@ WareHouse &WareHouse::operator=(const WareHouse &other) {
     return *this;
 }
 
+WareHouse::WareHouse(WareHouse &&other):
+isOpen(other.isOpen),actionsLog(),volunteers(),pendingOrders(),inProcessOrders(),
+completedOrders(),customers(),customerCounter(other.customerCounter),volunteerCounter(other.volunteerCounter),orderCounter(other.orderCounter)
+{
+    for (Order *o:other.pendingOrders) {
+        pendingOrders.push_back(o);
+    }
+
+    for (Order *o:other.inProcessOrders) {
+        inProcessOrders.push_back(o);
+    }
+
+    for (Order *o:other.completedOrders) {
+        completedOrders.push_back(o);
+    }
+
+    for (Volunteer *v:other.volunteers) {
+        volunteers.push_back(v);
+    }
+
+    for (Customer *c:other.customers) {
+        customers.push_back(c);
+    }
+
+    for (BaseAction *a:other.actionsLog) {
+        actionsLog.push_back(a);
+    }
+
+    other.pendingOrders.clear();
+    other.inProcessOrders.clear();
+    other.completedOrders.clear();
+    other.volunteers.clear();
+    other.customers.clear();
+    other.actionsLog.clear();
+}
+
+WareHouse &WareHouse::operator=(WareHouse &&other) {
+    if (this != &other) {
+        freeResources();
+        isOpen = other.isOpen;
+        customerCounter = other.customerCounter;
+        volunteerCounter = other.volunteerCounter;
+        orderCounter = other.orderCounter;
+        for (Order *o:other.pendingOrders) {
+            pendingOrders.push_back(o);
+        }
+
+        for (Order *o:other.inProcessOrders) {
+            inProcessOrders.push_back(o);
+        }
+
+        for (Order *o:other.completedOrders) {
+            completedOrders.push_back(o);
+        }
+
+        for (Volunteer *v:other.volunteers) {
+            volunteers.push_back(v);
+        }
+
+        for (Customer *c:other.customers) {
+            customers.push_back(c);
+        }
+
+        for (BaseAction *a:other.actionsLog) {
+            actionsLog.push_back(a);
+        }
+
+        other.pendingOrders.clear();
+        other.inProcessOrders.clear();
+        other.completedOrders.clear();
+        other.volunteers.clear();
+        other.customers.clear();
+        other.actionsLog.clear();
+    }
+
+    return *this;
+}
+
 void WareHouse::freeResources() {
     for (Order *o:pendingOrders) {
         delete o;
@@ -181,13 +258,14 @@ int WareHouse::newCustomerId() {
 }
 
 void WareHouse::addCustomer(string name, string type, int dist, int maxOrders){
+    int id = newCustomerId();
     if(type.compare("soldier")){
-        SoldierCustomer* newCust = new SoldierCustomer(newCustomerId(), name, dist, maxOrders);
+        SoldierCustomer* newCust = new SoldierCustomer(id, name, dist, maxOrders);
         customers.push_back(newCust); 
         return;
     }
 
-    CivilianCustomer* newCust = new CivilianCustomer(newCustomerId(), name, dist, maxOrders);
+    CivilianCustomer* newCust = new CivilianCustomer(id, name, dist, maxOrders);
     customers.push_back(newCust); 
 }
 
@@ -258,25 +336,7 @@ Volunteer &WareHouse::getVolunteer(int volunteerId) const {
 // NOTE: we can't assume the vectors are sorted here because orders will jump between
 // them unrelated to their id.
 bool WareHouse::orderExists(int orderId) const {
-    for (Order *o:pendingOrders) {
-        if (o->getId() == orderId) {
-            return true;
-        }
-    }
-
-    for (Order *o:inProcessOrders) {
-        if (o->getId() == orderId) {
-            return true;
-        }
-    }
-
-    for (Order *o:completedOrders) {
-        if (o->getId() == orderId) {
-            return true;
-        }
-    }
-
-    return false;
+    return (orderId<orderCounter);
 }
 
 
@@ -310,15 +370,15 @@ Order &WareHouse::getOrder(int orderId) const {
 void WareHouse::printOrders() const {
 
     for (Order *o:pendingOrders) {
-        cout << "OrderID: " << o->getId() <<", CustomerID: " << o->getCustomerId() << ",OrderStatus: " << o->StatusToString() <<endl;
+        cout << "OrderID: " << o->getId() <<", CustomerID: " << o->getCustomerId() << ", OrderStatus: " << o->StatusToString() <<endl;
     }
 
     for (Order *o:inProcessOrders) {
-        cout << "OrderID: " << o->getId() <<", CustomerID: " << o->getCustomerId() << ",OrderStatus: " << o->StatusToString() <<endl;
+        cout << "OrderID: " << o->getId() <<", CustomerID: " << o->getCustomerId() << ", OrderStatus: " << o->StatusToString() <<endl;
     }
 
     for (Order *o:completedOrders) {
-        cout << "OrderID: " << o->getId() <<", CustomerID: " << o->getCustomerId() << ",OrderStatus: " << o->StatusToString() <<endl;
+        cout << "OrderID: " << o->getId() <<", CustomerID: " << o->getCustomerId() << ", OrderStatus: " << o->StatusToString() <<endl;
     }
 }
 

@@ -24,7 +24,7 @@ bool Volunteer::isBusy() const {
 
 // CollectorVolunteer
 
-CollectorVolunteer::CollectorVolunteer(int id, string name, int coolDown): Volunteer(id,name),coolDown(coolDown),timeLeft(coolDown) {}
+CollectorVolunteer::CollectorVolunteer(int id, string name, int coolDown): Volunteer(id,name),coolDown(coolDown),timeLeft(0) {}
 
 CollectorVolunteer *CollectorVolunteer::clone() const {
     return new CollectorVolunteer(*this);
